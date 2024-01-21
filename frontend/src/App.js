@@ -5,15 +5,29 @@ import EventDetailPage from './pages/EventDetail';
 import NewEventPage from './pages/NewEvent';
 import EditEventPage from './pages/EditEvent';
 import RootLayout from './pages/Root';
+import EventsRootLayout from './pages/EventsRoot';
 
 const router = createBrowserRouter([
   {path: '/', element: <RootLayout />, 
     children: [
       { index: true, element: <HomePage/> },
-      { path: 'events', element: <EventPage /> },
-      { path: 'events/:eventId', element: <EventDetailPage /> },
-      { path: 'events/new', element: <NewEventPage /> },
-      { path: 'events/:eventId/edit', element: <EditEventPage /> }
+      { path: 'events', element: <EventsRootLayout />, 
+        children: [
+          { index: true, element: <EventPage />, loader: async() => {
+            const response = await fetch('http://localhost:8080/events');
+
+            if (!response.ok) {
+              // ...
+            } else {
+              const resData = await response.json();
+              return resData.events;
+            }
+          }},
+          { path: ':eventId', element: <EventDetailPage /> },
+          { path: 'new', element: <NewEventPage /> },
+          { path: ':eventId/edit', element: <EditEventPage /> }
+        ] 
+      },
     ]
   },
 ]);
